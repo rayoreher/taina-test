@@ -10,4 +10,7 @@ obj/
 /node_modules
 /wwwroot/node_modules
 
+# environment variables
+.env
+
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore
