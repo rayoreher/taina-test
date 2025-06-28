@@ -1,3 +1,6 @@
+USE [TAINATechTest]
+GO
+
 Declare @firstname varchar (30)
 Declare @lastname varchar (40)
 Declare @gender varchar (6)
