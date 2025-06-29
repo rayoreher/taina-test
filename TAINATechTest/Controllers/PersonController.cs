@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TAINATechTest.Data.Models;
@@ -21,11 +22,19 @@ namespace TAINATechTest.Controllers
             _personService = personService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Person> people = _personService.GetAllPeople();
+            try
+            {
+                List<Person> people = await _personService.GetAllPeople();
 
-            return View(people);
+                return View(people);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
+                return RedirectToAction(nameof(Error));
+            }
         }
 
         public IActionResult Details(int? id)

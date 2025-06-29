@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
+using Microsoft.EntityFrameworkCore;
 using TAINATechTest.Data.Data;
 using TAINATechTest.Data.Models;
 
@@ -20,11 +22,11 @@ namespace TAINATechTest.Data.Repositories
             _personContext = personContext;
         }
 
-        public List<Person> GetAll()
+        public async Task<List<Person>> GetAllAsync()
         {
             try
             {
-                List<Person> people = _personContext.People?.ToList();
+                List<Person> people = await _personContext.People.AsNoTracking().ToListAsync();
                 
                 _log.Debug($"Found {people?.Count} people");
 
@@ -33,9 +35,8 @@ namespace TAINATechTest.Data.Repositories
             catch (Exception ex)
             {
                 _log.Error(ex);
+                throw new Exception("An error occurred while retrieving people.", ex);
             }
-
-            return null;
         }
 
         public Person GetById(long id)

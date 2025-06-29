@@ -9,7 +9,8 @@ up:
 
 # Stop SQL Server
 down:
-	docker-compose down
+	docker stop $(CONTAINER_NAME) || true
+	docker rm $(CONTAINER_NAME) || true
 
 # Restart SQL Server
 restart: down up
@@ -20,7 +21,7 @@ create-db:
 	@echo Database $(DB_NAME) created!
 
 # Run migrations (create tables)
-migrate:
+migrate: create-db
 	@echo Running migrations...
 	docker cp sql-scripts/migrations.sql $(CONTAINER_NAME):/tmp/migrations.sql
 	docker exec -i $(CONTAINER_NAME) /opt/mssql-tools18/bin/sqlcmd -S localhost -U $(DB_USER) -P $(SA_PASSWORD) -C -i /tmp/migrations.sql
@@ -34,51 +35,10 @@ seed:
 	@echo Seeding completed!
 
 # Full setup: create db + migrate + seed
-setup: create-db migrate seed
+setup: migrate seed
 	@echo Full database setup completed!
-
-# Copy SQL files to container (now automatic)
-copy-sql:
-	docker cp sql-scripts/migrations.sql $(CONTAINER_NAME):/tmp/migrations.sql
-	docker cp sql-scripts/seed.sql $(CONTAINER_NAME):/tmp/seed.sql
-	@echo SQL files copied to container
-
-# Show connection string
-connection:
-	@echo.
-	@echo === CONNECTION STRING FOR .NET CORE 3.1 ===
-	@echo Server=$(DB_HOST),$(DB_PORT);Database=$(DB_NAME);User Id=$(DB_USER);Password=$(SA_PASSWORD);
-	@echo.
-
-# Check status
-status:
-	docker ps
-	@echo.
-	docker exec -it $(CONTAINER_NAME) /opt/mssql-tools18/bin/sqlcmd -S localhost -U $(DB_USER) -P $(SA_PASSWORD) -C -Q "SELECT name FROM sys.databases WHERE name = '$(DB_NAME)'"
-
-# Show data
-show-data:
-	@echo === PEOPLE TABLE ===
-	docker exec -it $(CONTAINER_NAME) /opt/mssql-tools18/bin/sqlcmd -S localhost -U $(DB_USER) -P $(SA_PASSWORD) -C -Q "USE $(DB_NAME); SELECT TOP 5 * FROM People"
 
 # Clean everything
 clean:
-	docker-compose down
-	docker container prune -f
-	docker system prune -f
-
-# Help
-help:
-	@echo Available commands:
-	@echo   up         - Start SQL Server
-	@echo   down       - Stop SQL Server  
-	@echo   restart    - Restart SQL Server
-	@echo   create-db  - Create the database
-	@echo   migrate    - Run migrations (create tables)
-	@echo   seed       - Seed database with sample data
-	@echo   setup      - Full setup (create-db + migrate + seed)
-	@echo   copy-sql   - Copy SQL files to container
-	@echo   connection - Show connection string
-	@echo   status     - Check if everything is running
-	@echo   show-data  - Show sample data from tables
-	@echo   clean      - Clean up everything
+	docker stop $(CONTAINER_NAME) || true
+	docker rm $(CONTAINER_NAME) || true

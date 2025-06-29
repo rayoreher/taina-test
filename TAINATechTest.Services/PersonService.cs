@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using TAINATechTest.Data.Models;
 using TAINATechTest.Data.Repositories;
 
@@ -14,9 +15,9 @@ namespace TAINATechTest.Services
         }
 
 
-        public List<Person> GetAllPeople()
+        public Task<List<Person>> GetAllPeople()
         {
-            return _personRepository.GetAll();
+            return _personRepository.GetAllAsync();
         }
 
         public Person GetPersonById(long id)
