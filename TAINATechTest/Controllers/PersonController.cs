@@ -101,7 +101,15 @@ namespace TAINATechTest.Controllers
             try
             {
                 var person = await _personService.GetPersonById(id.Value);
-                return View(person);
+                return View(new UpdatePersonViewModel
+                {
+                    Id = id.Value,
+                    FirstName = person.FirstName,
+                    LastName = person.LastName,
+                    EmailAddress = person.EmailAddress,
+                    Gender = person.Gender,
+                    PhoneNumber = person.PhoneNumber
+                });
             }
             catch (PersonNotFoundException)
             {

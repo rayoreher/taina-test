@@ -10,6 +10,6 @@ namespace TAINATechTest.Data.Models
         public string LastName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public string EmailAddress { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
     }
 }

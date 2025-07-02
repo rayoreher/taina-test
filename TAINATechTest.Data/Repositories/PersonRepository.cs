@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 using TAINATechTest.Data.Data;
 using TAINATechTest.Data.Models;
@@ -12,24 +9,22 @@ namespace TAINATechTest.Data.Repositories
     public class PersonRepository : IPersonRepository
     {
         private readonly PersonContext _personContext;
-        private readonly ILogger<PersonRepository> _logger;
 
         public PersonRepository(
-            PersonContext personContext,
-            ILogger<PersonRepository> logger)
+            PersonContext personContext)
         {
             _personContext = personContext;
-            _logger = logger;
         }
 
         public async Task<Person[]> GetAllAsync()
         {
+
             return await _personContext.People.AsNoTracking().ToArrayAsync();
         }
 
         public Task<Person?> GetByIdAsync(long id)
         {
-            return _personContext.People.FirstOrDefaultAsync(x => x.Id == id);
+            return _personContext.People.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Person> AddPersonAsync(Person person)

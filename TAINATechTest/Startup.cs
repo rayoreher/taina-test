@@ -31,13 +31,14 @@ namespace TAINATechTest
             {
                 config.RegisterValidatorsFromAssembly(typeof(Startup).Assembly);
                 config.ImplicitlyValidateChildProperties = true;
+                config.DisableDataAnnotationsValidation = true;
             });
             services.AddLogging(builder => { builder.AddLog4Net("log4net.config"); });
             services.AddDbContext<PersonContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddValidatorsFromAssemblyContaining(typeof(Startup));
 
-            services.AddTransient<IPersonRepository, PersonRepository>();
-            services.AddTransient<IPersonService, PersonService>();
+            services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IPersonService, PersonService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

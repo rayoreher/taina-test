@@ -36,7 +36,7 @@ namespace TAINATechTest.Services
                 LastName = x.LastName,
                 Gender = x.Gender,
                 EmailAddress = x.EmailAddress,
-                PhoneNumber = x.PhoneNumber
+                PhoneNumber = x.PhoneNumber ?? string.Empty
             });
         }
 

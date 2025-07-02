@@ -11,5 +11,6 @@ namespace TAINATechTest.Services
 
         Task<long> AddPersonAsync(CreatePersonViewModel person);
         Task<long> UpdatePersonAsync(UpdatePersonViewModel person);
+        Task<bool> DeletePersonAsync(long id);
     }
 }
