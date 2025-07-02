@@ -1,9 +1,6 @@
-﻿
-using System.ComponentModel;
-
-namespace TAINATechTest.Data.Models
+﻿namespace TAINATechTest.Services.ViewModels
 {
-    public class Person
+    public class UpdatePersonViewModel
     {
         public long Id { get; set; }
         public string FirstName { get; set; } = string.Empty;

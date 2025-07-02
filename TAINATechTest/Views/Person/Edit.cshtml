@@ -1,4 +1,4 @@
-﻿@model TAINATechTest.Data.Models.Person
+﻿@model TAINATechTest.Services.ViewModels.UpdatePersonViewModel
 
 @{
     ViewBag.Title = "Edit Person";
@@ -7,4 +7,49 @@
 
 <a href="/"><< Back</a>
 
-<h2>Edit Person</h2>
+<h2>Create Person</h2>
+<form asp-action="Create" autocomplete="off">
+    <div class="row">
+        <div class="col-12">
+            @Html.LabelFor(model => model.FirstName)
+        </div>
+        <div class="col-12">
+            @Html.EditorFor(model => model.FirstName)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @Html.LabelFor(model => model.LastName)
+        </div>
+        <div class="col-12">
+            @Html.EditorFor(model => model.LastName)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @Html.LabelFor(model => model.Gender)
+        </div>
+        <div class="col-12">
+            @Html.EditorFor(model => model.Gender)
+        </div>
+    </div>     <div class="row">
+        <div class="col-12">
+            @Html.LabelFor(model => model.EmailAddress)
+        </div>
+        <div class="col-12">
+            @Html.EditorFor(model => model.EmailAddress)
+        </div>
+    </div>     <div class="row">
+        <div class="col-12">
+            @Html.LabelFor(model => model.PhoneNumber)
+        </div>
+        <div class="col-12">
+            @Html.EditorFor(model => model.PhoneNumber)
+        </div>
+    </div>
+
+    <button type="submit">Submit</button>
+
+</form>
+
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })

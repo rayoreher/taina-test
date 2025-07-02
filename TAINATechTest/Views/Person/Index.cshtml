@@ -1,5 +1,5 @@
-﻿@using TAINATechTest.Data.Models
-@model IEnumerable<TAINATechTest.Data.Models.Person>
+﻿@using TAINATechTest.Services.ViewModels
+@model IEnumerable<ListPersonViewModel>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -35,7 +35,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (Person item in Model)
+                @foreach (var item in Model)
                 {
                     <tr>
                         <td>

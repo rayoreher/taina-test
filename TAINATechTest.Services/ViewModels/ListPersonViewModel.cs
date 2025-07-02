@@ -1,9 +1,10 @@
-﻿
-using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace TAINATechTest.Data.Models
+namespace TAINATechTest.Services.ViewModels
 {
-    public class Person
+    public class ListPersonViewModel
     {
         public long Id { get; set; }
         public string FirstName { get; set; } = string.Empty;

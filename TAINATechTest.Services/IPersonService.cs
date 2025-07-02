@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TAINATechTest.Data.Models;
+using TAINATechTest.Services.ViewModels;
 
 namespace TAINATechTest.Services
 {
     public interface IPersonService
     {
-        Task<List<Person>> GetAllPeople();
-        Person GetPersonById(long id);
+        Task<IEnumerable<ListPersonViewModel>> GetAllPeople();
+        Task<DetailsPersonViewModel> GetPersonById(long id);
 
-        public int? AddPerson(Person person);
+        Task<long> AddPersonAsync(CreatePersonViewModel person);
+        Task<long> UpdatePersonAsync(UpdatePersonViewModel person);
     }
 }

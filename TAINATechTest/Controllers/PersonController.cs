@@ -1,52 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading.Tasks;
-using log4net;
-using Microsoft.AspNetCore.Mvc;
-using TAINATechTest.Data.Models;
 using TAINATechTest.Models;
 using TAINATechTest.Services;
-using TAINATechTest.Services.Helpers;
+using TAINATechTest.Services.Exceptions;
+using TAINATechTest.Services.ViewModels;
 
 namespace TAINATechTest.Controllers
 {
     public class PersonController : Controller
     {
-        protected static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod()?.DeclaringType);
         private readonly IPersonService _personService;
+        private readonly ILogger<PersonController> _logger;
 
-        public PersonController(IPersonService personService)
+        public PersonController(
+            IPersonService personService,
+            ILogger<PersonController> logger)
         {
             _personService = personService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                List<Person> people = await _personService.GetAllPeople();
+                var people = await _personService.GetAllPeople();
 
                 return View(people);
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                _logger.LogError(ex, "Unhandled error while fetching all people in {methodName}", nameof(Index));
                 return RedirectToAction(nameof(Error));
             }
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            try
+            {
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var person = await _personService.GetPersonById(id.Value);
+
+                return View(person);
+            }
+            catch (PersonNotFoundException)
             {
                 return NotFound();
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error getting person details with id: {id} in {methodName}", id, nameof(Details));
+                return RedirectToAction(nameof(Error));
+            }
 
-            Person person = _personService.GetPersonById(id.Value);
-
-            return View(person);
         }
 
         public IActionResult Create()
@@ -54,66 +68,75 @@ namespace TAINATechTest.Controllers
             return View();
         }
 
-        public IActionResult Edit()
-        {
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("FirstName,LastName,Gender,EmailAddress,PhoneNumber")] Person person)
+        public async Task<IActionResult> Create(CreatePersonViewModel person)
         {
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    if (!EmailHelper.IsEmailValid(person.EmailAddress))
-                    {
-                        ModelState.AddModelError("", "Unable to save changes - invalid email address format. ");
-                    }
-                    else
-                    {
-                        int? newId = _personService.AddPerson(person);
-                        if (newId == null)
-                        {
-                            ModelState.AddModelError("", "Unable to save changes. ");
-                        }
-                        else
-                        {
-                            return RedirectToAction(nameof(Index));
-                        }
-                    }
+                    return View(person);
                 }
+
+                await _personService.AddPersonAsync(person);
+
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. " + ex.Message);
+                _logger.LogError(ex, "Unhandled error while creating a person in {methodName}", nameof(Create));
+                return RedirectToAction(nameof(Error));
             }
-            return View(person);
         }
 
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public IActionResult EditPost(int? id)
+
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+
             try
             {
-                if (ModelState.IsValid)
-                {
-                   
-                }
+                var person = await _personService.GetPersonById(id.Value);
+                return View(person);
             }
-            catch (Exception /* ex */)
+            catch (PersonNotFoundException)
             {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. ");
+                return NotFound();
             }
-            return View();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error while getting person by id: {id} in {methodName}", id, nameof(Edit));
+                return RedirectToAction(nameof(Error));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UpdatePersonViewModel person)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(person);
+                }
+
+                await _personService.UpdatePersonAsync(person);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (PersonNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error while updating person with id: {id} in {methodName}", person.Id, nameof(Edit));
+                return RedirectToAction(nameof(Error));
+            }
         }
 
         public IActionResult Privacy()
@@ -125,6 +148,12 @@ namespace TAINATechTest.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult NotFound(int statusCode)
+        {
+            ViewBag.StatusCode = statusCode;
+            return View();
         }
     }
 }
